@@ -4,10 +4,6 @@ const brokerUrl = "ws://192.168.0.65:9001/";
 const username = "omar";
 const password = "fuckomar";
 
-
-
-
-
 const client = new Paho.MQTT.Client(brokerUrl, clientId);
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
