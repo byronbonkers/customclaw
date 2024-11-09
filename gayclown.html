@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Claw Machine 🎉</title>
+    <style>
+        /* Overall Layout */
+        body { 
+            font-family: 'Comic Sans MS', sans-serif; 
+            background: linear-gradient(135deg, #ff69b4, #800080); 
+            color: white; 
+            overflow-x: hidden; 
+            text-align: center;
+        }
+        h1 { 
+            font-size: 2.5em; 
+            margin-top: 20px; 
+            animation: pulse 2s infinite;
+        }
+        
+        /* Clown Background */
+        .clown-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+            opacity: 0.1; 
+            background-image: url('clown-background.png');
+            background-size: cover;
+            background-position: center;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        /* Button Styling */
+        .buttons { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 40px;
+        }
+        .buttons button { 
+            padding: 15px 30px; 
+            margin: 10px; 
+            font-size: 1.5em; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 12px; 
+            background: #4CAF50; 
+            color: white; 
+            transition: transform 0.2s ease, background 0.5s ease;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+        }
+        .buttons button:hover {
+            transform: scale(1.1);
+            background: #45a049;
+            animation: bounce 0.5s;
+        }
+
+        /* Video Styling */
+        .video-feed img {
+            border: 10px solid white;
+            border-radius: 20px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+            animation: pulse 4s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes float {
+            from { transform: translateY(-10px); }
+            to { transform: translateY(10px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎪 LGBTQ+ Friendly Claw Machine 🎉</h1>
+    <div class="clown-bg"></div>
+
+    <div class="buttons">
+        <button onclick="sendCommand('up')">⬆️ Up</button>
+        <button onclick="sendCommand('left')">⬅️ Left</button>
+        <button onclick="sendCommand('down')">⬇️ Down</button>
+        <button onclick="sendCommand('right')">➡️ Right</button>
+    </div>
+
+    <div class="video-feed">
+        <img src="http://<Raspberry_Pi_IP>:5000/video_feed" alt="Live Video Feed">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script>
+        const client = new Paho.MQTT.Client("ws://<Raspberry_Pi_IP>:9001", "clientId-web");
+
+        client.onConnectionLost = (responseObject) => {
+            if (responseObject.errorCode !== 0) {
+                console.log("Connection lost:", responseObject.errorMessage);
+            }
+        };
+
+        client.connect({onSuccess: onConnect});
+
+        function onConnect() {
+            console.log("Connected to MQTT broker.");
+        }
+
+        function sendCommand(direction) {
+            const message = new Paho.MQTT.Message(direction);
+            message.destinationName = "claw_machine/control";
+            client.send(message);
+        }
+    </script>
+</body>
+</html>
